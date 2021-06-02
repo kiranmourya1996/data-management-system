@@ -160,5 +160,7 @@ return [
     'priceRequired' => 'Price is required',
     'category'    => 'Category is required',
     'image'    => 'Image is required',
+     'NameTaken'    => 'Name is taken',
+    'NameRequired' => 'Name is required',
 
 ];

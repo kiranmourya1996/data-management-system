@@ -33,12 +33,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Category Management</h1>
+            <h1>Role Management</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Category Management</li>
+              <li class="breadcrumb-item active">Role Management</li>
             </ol>
           </div>
         </div>
@@ -55,8 +55,8 @@
 
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">DataTable with categories</h3>
-                <a href="/categories/create" class="btn btn-primary" style="    float: right;">Create Category</a>
+                <h3 class="card-title">DataTable with Roles</h3>
+                <a href="/roles/create" class="btn btn-primary" style="    float: right;">Create Role</a>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
@@ -65,7 +65,6 @@
                     <tr>
                         <th>ID</th>
                         <th> Name</th>
-                        <th> Description</th>
                         <th width="100px">Action</th>
                     </tr>
                 </thead>
@@ -115,54 +114,42 @@
 <!-- Page specific script -->
 <script type="text/javascript">
   $('#category_table').on('click', '.btn-delete[data-remote]', function (e) { 
-      e.preventDefault();
-      $.ajaxSetup({
-          headers: {
-              'X-CSRF-TOKEN': "{{ csrf_token() }}",
-          }
-      });
-      var url = $(this).data('remote');
-      // confirm then
-      swal({
-          title: 'Are you sure?',
-          text: 'This record and it`s details will be deleted!',
-          icon: 'warning',
-          buttons: ["Cancel", "Yes!"],
-      }).then(function(value) {
-          if (value) {
-            $.ajax({
-                url: url,
-                type: 'POST',
-                dataType: 'json',
-                data: {_method: 'DELETE', submit: true},
-                success: function (response) {
-                    console.log('1');
-                    console.log(response);
-                      $('#category_table').DataTable().draw(false);
-                       swal("Success", 'Deleted Successfully');
-                },
-                error: function (response) {
-                   console.log('2');
-                   swal("Error", 'Category not deleted, It is used in product');
-                }
-            }).always(function (data) {
-              console.log(data);
-                $('#category_table').DataTable().draw(false);
-            });
-          }
-      });
-     
+    e.preventDefault();
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': "{{ csrf_token() }}",
+        }
+    });
+    var url = $(this).data('remote');
+    // confirm then
+    swal({
+        title: 'Are you sure?',
+        text: 'This record and it`s details will be deleted!',
+        icon: 'warning',
+        buttons: ["Cancel", "Yes!"],
+    }).then(function(value) {
+        if (value) {
+          $.ajax({
+              url: url,
+              type: 'DELETE',
+              dataType: 'json',
+              data: {method: '_DELETE', submit: true}
+          }).always(function (data) {
+              $('#category_table').DataTable().draw(false);
+          });
+        }
+    });
+   
 });
   $(function () {
     
     var table = $('.data-table').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('categories') }}",
+        ajax: "{{ route('roles') }}",
         columns: [
             {data: 'id', name: 'id'},
             {data: 'name', name: 'name'},
-            {data: 'description', name: 'description'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]
     });

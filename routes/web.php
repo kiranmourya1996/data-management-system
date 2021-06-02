@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('login');
+    return redirect('login');
 });
 
 Auth::routes();
@@ -36,7 +36,8 @@ Route::group(['middleware' => ['auth', 'role:admin|user|sales']], function () {
             'deleted',
         ],
     ]);
-     Route::resource('categories', App\Http\Controllers\CategoryManagementController::class, [
+    
+    Route::resource('categories', App\Http\Controllers\CategoryManagementController::class, [
         'names' => [
             'index'   => 'categories',
             'destroy' => 'categories.destroy',
@@ -45,11 +46,21 @@ Route::group(['middleware' => ['auth', 'role:admin|user|sales']], function () {
             'deleted',
         ],
     ]);
+    
     Route::get('/logout', ['uses' => 'App\Http\Controllers\Auth\LoginController@logout'])->name('logout');
 });
 
 Route::group(['middleware' => ['auth', 'role:admin']], function () {
 
+    Route::resource('roles',  App\Http\Controllers\RoleManagementController::class, [
+        'names' => [
+            'index'   => 'roles',
+            'destroy' => 'roles.destroy',
+        ],
+        'except' => [
+            'deleted',
+        ],
+    ]);
     Route::resource('products',  App\Http\Controllers\ProductManagementController::class, [
         'names' => [
             'index'   => 'products',

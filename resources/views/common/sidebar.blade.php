@@ -49,6 +49,7 @@
               </p>
             </a>
           </li> 
+
           @endif
            @if(Auth::user()->hasRole('sales') || Auth::user()->hasRole('admin'))
           <li class="nav-item ">
@@ -65,6 +66,17 @@
               <i class="nav-icon fas fa-ship"></i>
               <p>
                 Product Management
+
+              </p>
+            </a>
+          </li> 
+          @endif
+           @if(Auth::user()->hasRole('admin'))
+          <li class="nav-item ">
+            <a href="{{ url('/roles') }}" class="nav-link {{ (request()->is('roles')) ? 'active' : '' }}">
+              <i class="nav-icon fas fa-file"></i>
+              <p>
+                Role Management
 
               </p>
             </a>

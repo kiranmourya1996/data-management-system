@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Categories;
-use App\Models\Products;
+use App\Models\Roles;
+use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
@@ -13,8 +14,9 @@ use Auth;
 use Yajra\DataTables\DataTables;
 use DB;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\PermissionRole;
 
-class CategoryManagementController extends Controller
+class RoleManagementController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,12 +26,12 @@ class CategoryManagementController extends Controller
      public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Categories::select('*')->latest();
+            $data = Roles::select('*')->latest()->get();
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row){
      
-                           $btn = '<a href="categories/'.$row->id.'" class="edit btn btn-primary btn-sm">Update</a><button class="btn btn-danger btn-delete" data-remote="http://127.0.0.1:8000/categories/' . $row->id . '">Delete</button>';
+                           $btn = '<a href="roles/'.$row->id.'" class="edit btn btn-primary btn-sm">Update</a>';
     
                             return $btn;
                     })
@@ -37,7 +39,7 @@ class CategoryManagementController extends Controller
                     ->make(true);
         }
         
-        return View('categoriesmanagement.show-categories');
+        return View('rolesmanagement.show-roles');
     }
 
     /**
@@ -48,7 +50,8 @@ class CategoryManagementController extends Controller
     public function create()
     {
         //
-         return view('categoriesmanagement.create-categories');
+         $permission=Permission::all();
+         return view('rolesmanagement.create-roles',compact('permission'));
     }
 
     /**
@@ -65,15 +68,15 @@ class CategoryManagementController extends Controller
         $validator = Validator::make(
             $request->all(),
             [
-                'name'                  => 'required|max:255|unique:categories',
-                'description'            => 'required|max:500',
+                'name'                  => 'required|alpha_dash|max:255|unique:roles',
+                
                 
                
             ],
             [
-                'name.unique'         => trans('validation.categoryNameTaken'),
-                'name.required'       => trans('validation.categoryNameRequired'),
-                'description.required' => trans('validation.descriptionRequired'),
+                'name.unique'         => trans('validation.NameTaken'),
+                'name.required'       => trans('validation.NameRequired'),
+               
                 
             ]
         );
@@ -84,22 +87,26 @@ class CategoryManagementController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
 
-        $categories = Categories::create([
-            'user_id'   =>Auth::user()->id,
+        $roles = Roles::create([
             'name'             => strip_tags($request->input('name')),
-            'description'       => strip_tags($request->input('description')),
-           
+            'slug'             => strip_tags($request->input('name')),
            
         ]);
-        
-        $categories->save();
-        Alert::success('Success', 'Category created successfully');
+      // $permission=$request->input('permission');
+        $permisions=$request->input('permisions');
+       // foreach($permisions as $value){
+            
+       //      $category_name[]=$value->category_name;
+            
+       //  }
+       // $roles->attachRole($request->input('permission'));
+       
+        $roles->permission()->attach($permisions);
+        $roles->save();
+        Alert::success('Success', 'Roles created successfully');
 
-        return redirect()->route('categories');
+        return redirect()->route('roles');
     }
 
     /**
@@ -112,9 +119,12 @@ class CategoryManagementController extends Controller
     {
         //
           //
-         $categories=Categories::where('id', $id)->first();
+         $permission=Permission::all();
+         $permissionrole=DB::table('permission_role')->where('role_id',$id)->pluck('permission_id')->all();
+        
+         $roles=Roles::where('id', $id)->first();
     
-         return view('categoriesmanagement.edit-categories', compact('categories'));
+         return view('rolesmanagement.edit-roles', compact(['roles','permission','permissionrole']));
     }
 
     /**
@@ -144,13 +154,13 @@ class CategoryManagementController extends Controller
             [
             
                 'name'            => 'alpha_dash',
-                'description'             => 'alpha_dash',
+                
 
             ],
             [
                
-                'name.required' => trans('validation.categoryNameRequired'),
-                'description.required'  => trans('validation.descriptionRequired'),
+                'name.required' => trans('validation.NameRequired'),
+                
                
             ]
         );
@@ -158,12 +168,17 @@ class CategoryManagementController extends Controller
                 return back()->withErrors($validator)->withInput();
             }
 
-           
+
+            $permisions=$request->input('permisions');
             $name = strip_tags($request->input('name'));
-            $description = strip_tags($request->input('description'));
-            Categories::where('id',$id)->update(['name' => $name, 'description' => $description]);
-            Alert::success('Success', 'categories updated successfully');
-            return redirect()->route('categories');
+            
+            $query=DB::table('permission_role')->where('role_id',$id)->delete();
+          
+            $roles= Roles::find($id);
+            $roles->permission()->attach($permisions);
+            Roles::where('id',$id)->update(['name' => $name]);
+            Alert::success('Success', 'Role updated successfully');
+            return redirect()->route('roles');
     }
 
     /**
@@ -174,25 +189,18 @@ class CategoryManagementController extends Controller
      */
     public function destroy($id)
     {
-
         if ($id !=='' ) {
-
-           $data=Products::where('category_id',$id)->count();
-
-           if($data>0){
-            return false;
-           }else{
-            //dd('yes');
+            
             $query=Categories::where('id',$id);
             $query->delete();
+            DB::table('products')->where('category_id', $id)->delete();
+          
             Alert::success('Success', 'Category deleted successfully');
             return redirect('categories');
            
-           }
-            
         }
 
-        Alert::error('Error', 'Category not deleted');
+         Alert::error('Error', 'Category not deleted');
         return back()->with('error');
     }
 }

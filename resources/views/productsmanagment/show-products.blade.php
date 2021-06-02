@@ -63,7 +63,7 @@
                <table id="product_table" class="table table-bordered data-table">
                 <thead>
                     <tr>
-                        <th>No</th>
+                        <th>ID</th>
                         <th> Image</th>
                         <th> Name</th>
                         <th> Description</th>

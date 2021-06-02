@@ -117,41 +117,8 @@ class UserManagementController extends Controller
             'email' => $request->input('email'),
             'password' => $request->input('password')
         ];
-        \Mail::to($request->input('email'))->send(new \App\Mail\MyTestMail($details));
+        \Mail::to($request->input('email'))->send(new \App\Mail\SendMailUser($details));
        
-      
-
-        //$user = User::findOrFail($id);
-
-        // Mail::send('mail', ['user' => $user], function ($m) use ($user) {
-        //     $m->from('kiranmourya02@gmail.com', 'Your Application');
-
-        //     $m->to($user->email, $user->first_name)->subject('Your Reminder!');
-        // });
-
-        // $to_name = $request->input('name');
-        // $to_email = $request->input('email');
-        // $data = array('name'=>"Cloudways (sender_name)", "body" => "A test mail");
-          
-        // Mail::send('mail', $data, function($message) use ($to_name, $to_email) {
-        // $message->to($to_email, $to_name)
-        // ->subject('Laravel Test Mail');
-        // $message->from('kiranmourya02@gmail.com','Test Mail');
-        // });
-   
-  // return 'Email sent Successfully';
-
-      //  app('App\Http\Controllers\HelperController')->sendMail($request->input('email'),'Registration',$user);
-        // $sender_email=str_replace('kiranmmourya02@gmail.com');
-        // $subject=str_replace('register');
-        // $sender_name=str_replace('kiran');
-        // if($sender_email!=''){
-        //     Mail::send('emails.test',array('data'=>'Dummy'), function($message) use($sender_email, $subject, $sender_name){
-        //      $message->to([$sender_email,config('mail.from.address')], $sender_name)->subject
-        //         ($subject);
-        //      $message->from(config('mail.from.address') , config('mail.from.name'));
-        //  });
-        //  }
         Alert::success('Success', 'User created successfully');
 
         return redirect()->route('users');

@@ -7,7 +7,8 @@
 
 	
     <h1>Login Details </h1>
-    <p>Hello,  {{ $details['first_name'].''.$details['last_name'] }} Your login details are mentioned below </p>
+    <p>Hello {{ $details['first_name'].''.$details['last_name'] }},</p>
+    <p> Your login details are mentioned below </p>
     <p>Email {{ $details['email'] }}</p>
     <p>Password {{ $details['password'] }}</p>
    
